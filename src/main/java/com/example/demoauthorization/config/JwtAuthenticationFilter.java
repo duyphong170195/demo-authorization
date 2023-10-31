@@ -1,5 +1,6 @@
 package com.example.demoauthorization.config;
 
+import com.example.demoauthorization.cachedrequest.ModifyRequestBodyWrapper;
 import com.example.demoauthorization.cachedrequest.RequestWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.MDC;
@@ -50,30 +51,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (requestUriPath.endsWith("/")) {
             requestUriPath = requestUriPath.substring(0, requestUriPath.lastIndexOf("/"));
         }
-        if(true) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+//        if(true) {
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
 
 
 //        CachedBodyHttpServletRequest cachedBodyHttpServletRequest = new CachedBodyHttpServletRequest(request);
+        PhongRequestWrapper wrapper2 = new PhongRequestWrapper(request);
 
+        filterChain.doFilter(wrapper2, response);
         //Wrap the request
         RequestWrapper wrapper = new RequestWrapper((HttpServletRequest) request);
 
+//        wrapper.se
+
 //        ContentCachingRequestWrapper contentCachingRequestWrapper = wrapRequest(request);
 //Get the input stream from the wrapper and convert it into byte array
-        byte[] body = StreamUtils.copyToByteArray(wrapper.getInputStream());
+//        byte[] body = StreamUtils.copyToByteArray(wrapper.getInputStream());
+//        ObjectMapper objectMapper = new ObjectMapper();
 
 // use jackson ObjectMapper to convert the byte array to Map (represents JSON)
-        Map<String, Object> jsonRequest = new ObjectMapper().readValue(body, Map.class);
-        jsonRequest.containsKey("areaId");
+//        Map<String, Object> jsonRequest = new ObjectMapper().readValue(body, Map.class);
+//        jsonRequest.containsKey("areaId");
+//        jsonRequest.put("areaId", 3);
 
-        System.out.println(jsonRequest);
+
+        // Create a custom HttpServletRequestWrapper with the modified request body
+//        ModifyRequestBodyWrapper modifiedRequest = new ModifyRequestBodyWrapper(wrapper, objectMapper.writeValueAsString(jsonRequest));
+
+//        System.out.println(jsonRequest);
 //        filterChain.doFilter(wrapper, response);
 
 //        ContentCachingRequestWrapper contentCachingRequestWrapper = wrapRequest(request);
 //        this.getRequest(contentCachingRequestWrapper);
+//        filterChain.doFilter(wrapper, response);
         doFilterWrapped(wrapper, wrapResponse(response), filterChain, "duyphong170195");
     }
 
