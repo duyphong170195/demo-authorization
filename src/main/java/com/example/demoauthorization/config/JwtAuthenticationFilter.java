@@ -2,6 +2,7 @@ package com.example.demoauthorization.config;
 
 import com.example.demoauthorization.cachedrequest.ModifyRequestBodyWrapper;
 import com.example.demoauthorization.cachedrequest.RequestWrapper;
+import com.example.demoauthorization.enums.ApplicationType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.MDC;
 import org.springframework.http.HttpMethod;
@@ -46,6 +47,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("http method = " + httpMethod);
         System.out.println(request.getRequestURI());
         System.out.println(request.getQueryString());
+//        request.getParameterMap();
+        request.getParameterValues("query1");
+
         System.out.println("Thế huynh");
         String requestUriPath  = request.getRequestURI() + "/";
         if (requestUriPath.endsWith("/")) {
@@ -58,11 +62,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
 //        CachedBodyHttpServletRequest cachedBodyHttpServletRequest = new CachedBodyHttpServletRequest(request);
-        PhongRequestWrapper wrapper2 = new PhongRequestWrapper(request);
+//        PhongRequestWrapper wrapper2 = new PhongRequestWrapper(request);
 
-        filterChain.doFilter(wrapper2, response);
+//        filterChain.doFilter(wrapper2, response);
         //Wrap the request
-        RequestWrapper wrapper = new RequestWrapper((HttpServletRequest) request);
+        List<Long> areaIds = List.of(1L,2L,4L);
+        List<Long> blockIds = List.of(1L,2L,4L);
+        RequestWrapper wrapper = new RequestWrapper((HttpServletRequest) request, areaIds, blockIds, ApplicationType.MP);
 
 //        wrapper.se
 
