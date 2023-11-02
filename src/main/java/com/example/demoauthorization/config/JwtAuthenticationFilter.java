@@ -1,13 +1,14 @@
 package com.example.demoauthorization.config;
 
-import com.example.demoauthorization.cachedrequest.ModifyRequestBodyWrapper;
 import com.example.demoauthorization.cachedrequest.RequestWrapper;
+import com.example.demoauthorization.cachedrequest.RequestWrapperTemp;
 import com.example.demoauthorization.enums.ApplicationType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.MDC;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -17,14 +18,11 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 // tham khảo https://fullstackdeveloper.guru/2021/09/21/how-to-read-a-json-request-inside-a-spring-boot-filter/
 // modify request: https://stackoverflow.com/questions/50932518/how-to-modify-request-body-before-reaching-controller-in-spring-boot
@@ -68,6 +66,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         //Wrap the request
         List<Long> areaIds = List.of(1L,2L,4L);
         List<Long> blockIds = List.of(1L,2L,4L);
+
+        boolean check = this.verifyAreaBlockValid(request, areaIds, blockIds);
+
+        if(!check) {
+            System.out.println("areas are invalid");
+        }
         RequestWrapper wrapper = new RequestWrapper((HttpServletRequest) request, areaIds, blockIds, ApplicationType.MP);
 
 //        wrapper.se
@@ -186,7 +190,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    private void handleAuthorizationData(HttpServletRequest httpServletRequest) {
+    private void handleAuthorizationData(HttpServletRequest httpServletRequest, List<Long> areaIds, List<Long> blockIds) {
         // TODO handle GET request
         if(HttpMethod.GET.equals(httpServletRequest.getMethod())) {
             String query = httpServletRequest.getQueryString();
@@ -195,5 +199,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // TODO handle POST AND PUT AND DELETE request
     }
+    private boolean verifyAreaBlockValid(HttpServletRequest request, List<Long> areaIds, List<Long> blockIds) throws IOException {
+        //Wrap the request
+        RequestWrapperTemp wrapper = new RequestWrapperTemp((HttpServletRequest) request);
 
+        byte[] body = StreamUtils.copyToByteArray(wrapper.getInputStream());
+
+        Map<String, Object> jsonRequest = new ObjectMapper().readValue(body, Map.class);
+        if(jsonRequest.containsKey("areaIds")) {
+            List<Integer> areaIdsTemp = (List<Integer>) jsonRequest.get("areaIds");
+            if(!CollectionUtils.isEmpty(areaIdsTemp)) {
+               List<Integer> areaIdsInvalid = areaIdsTemp.stream()
+                        .filter(areaIdTemp -> !areaIds.contains(areaIdTemp.longValue()))
+                        .collect(Collectors.toList());
+               if(areaIdsInvalid.size() > 0) {
+                   return false;
+               }
+            }
+        }
+
+        if(jsonRequest.containsKey("blockIds")) {
+            List<Integer> blockIdsTemp = (List<Integer>) jsonRequest.get("blockIds");
+            if(!CollectionUtils.isEmpty(blockIdsTemp)) {
+                List<Integer> areaIdsInvalid = blockIdsTemp.stream()
+                        .filter(blockIdTemp -> !areaIds.contains(blockIdTemp.longValue()))
+                        .collect(Collectors.toList());
+                if(areaIdsInvalid.size() > 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }

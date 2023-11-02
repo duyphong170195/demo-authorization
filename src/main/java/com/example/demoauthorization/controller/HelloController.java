@@ -30,7 +30,7 @@ public class HelloController {
     }
 
     @PostMapping("/post")
-    public void postHello() {
+    public void postHello(@RequestBody HelloRequestWithArea helloRequestWithArea) {
         System.out.println("Hello world");
     }
 
@@ -38,6 +38,11 @@ public class HelloController {
     public void deleteHello(@RequestPart("content_announcement_create_request")
                                 ContentAnnouncementCreateRequest request,
                             @RequestPart(value = "file", required = false) MultipartFile file) {
+        System.out.println("Hello world");
+    }
+
+    @DeleteMapping("/delete")
+    public void deleteHello2(@RequestBody List<String> aaa) {
         System.out.println("Hello world");
     }
 }

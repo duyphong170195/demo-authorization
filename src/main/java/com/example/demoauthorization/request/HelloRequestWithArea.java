@@ -1,38 +1,32 @@
 package com.example.demoauthorization.request;
 
+import java.util.List;
+
 public class HelloRequestWithArea {
-    private String area;
-    private String block;
+    private List<Long> areaIds;
+    private List<Long> blockIds;
 
-    private String areaId;
-
-    public HelloRequestWithArea(String area, String block, String areaId) {
-        this.area = area;
-        this.block = block;
-        this.areaId = areaId;
+    public HelloRequestWithArea() {
     }
 
-    public String getArea() {
-        return area;
+    public HelloRequestWithArea(List<Long> areaIds, List<Long> blockIds) {
+        this.areaIds = areaIds;
+        this.blockIds = blockIds;
     }
 
-    public void setArea(String area) {
-        this.area = area;
+    public List<Long> getAreaIds() {
+        return areaIds;
     }
 
-    public String getBlock() {
-        return block;
+    public void setAreaIds(List<Long> areaIds) {
+        this.areaIds = areaIds;
     }
 
-    public void setBlock(String block) {
-        this.block = block;
+    public List<Long> getBlockIds() {
+        return blockIds;
     }
 
-    public String getAreaId() {
-        return areaId;
-    }
-
-    public void setAreaId(String areaId) {
-        this.areaId = areaId;
+    public void setBlockIds(List<Long> blockIds) {
+        this.blockIds = blockIds;
     }
 }

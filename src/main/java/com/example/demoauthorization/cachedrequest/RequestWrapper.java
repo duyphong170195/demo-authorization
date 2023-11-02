@@ -34,6 +34,13 @@ public class RequestWrapper extends ContentCachingRequestWrapper {
 			return null;
 		}
 	}
+	public static <T> List<T> convertByteToListObjects(byte[] json, Class<T> clazz) {
+		try {
+			return objectMapper.readValue(json, new TypeReference<List<T>>() {});
+		} catch (Exception e) {
+			return null;
+		}
+	}
 	private String body;
 	private ApplicationType applicationType;
 	private List<Long> areaIds;
@@ -52,41 +59,15 @@ public class RequestWrapper extends ContentCachingRequestWrapper {
 			String s = new String(body, StandardCharsets.UTF_8);
 			if(body.length == 0) {
 				this.body = "{}";
-			} else if (s.startsWith("{") && s.endsWith("}")){
+			} else if (body.length > 1 && body[0] == 123 && body[body.length - 1] == 125){
 				Map<String, Object> jsonRequest = objectMapper.readValue(body, Map.class);
 				this.body = objectMapper.writeValueAsString(jsonRequest);
-			} else if(s.startsWith("[") && s.endsWith("]")) {
-				List<Object> jsonRequest = this.convertJsonToListObjects(s, Object.class);
+			} else if(body.length > 1 && body[0] == 91 && body[body.length - 1] == 93) {
+				List<Object> jsonRequest = convertByteToListObjects(body, Object.class);
 				this.body = objectMapper.writeValueAsString(jsonRequest);
 			} else {
 				this.body = "{}";
 			}
-			// none
-			// []
-			// {}
-//			String s = new String(body, StandardCharsets.UTF_8);
-//			if(s.startsWith("[") && s.endsWith("]")) {
-////				List<Object> jsonRequest = objectMapper.readValue(s, clazz);;
-//				List<Object> jsonRequest = this.convertJsonToListObjects(s, Object.class);
-//				this.body = objectMapper.writeValueAsString(jsonRequest);
-//			} else if(s.startsWith("{") && s.endsWith("}")) {
-//
-//			}
-//			 else if(body.length == 0) {
-//				this.body = "";
-//
-//			} else {
-//				try{
-//
-//				} catch (Exception e) {
-//
-//				}
-//				Map<String, Object> jsonRequest = objectMapper.readValue(body, Map.class);
-//				this.body = objectMapper.writeValueAsString(jsonRequest);
-//			}
-//		} else {
-//
-//		}
 		}
 	}
 
@@ -158,6 +139,5 @@ public class RequestWrapper extends ContentCachingRequestWrapper {
 	public BufferedReader getReader() throws IOException {
 		return new BufferedReader(new InputStreamReader(this.getInputStream()));
 	}
-
 
 }
